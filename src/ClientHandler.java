@@ -12,11 +12,11 @@ public class ClientHandler implements Runnable
 
 	public void run()
 	{
-		DataInputStream inputStream;
+		BufferedReader inputReader;
 		PrintStream outputStream;
 		try
 		{
-			inputStream = new DataInputStream(this.client.getInputStream());
+			inputReader = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
 			outputStream = new PrintStream(this.client.getOutputStream());
 		}
 		catch(IOException e)
@@ -25,8 +25,8 @@ public class ClientHandler implements Runnable
 			return;
 		}
 
-		outputStream.println("Hello, world!");
-
+		HttpRequest request = new HttpRequest(inputReader);
+		System.out.println("Received request for \"" + request.uri + "\"");
 		try
 		{
 			this.client.close();
