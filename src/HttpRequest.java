@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+import java.lang.*;
 
 public class HttpRequest
 {
@@ -14,6 +15,7 @@ public class HttpRequest
 	int httpMajorVersion;
 	int httpMinorVersion;
 	HashMap<String,String> headers;
+	String body;
 
 	public HttpRequest(BufferedReader reader)
 	{
@@ -75,8 +77,10 @@ public class HttpRequest
 				return;
 			}
 
-			if(line == null || line.equals(""))
+			if(line.equals(""))
 				break;
+			if(line == null)
+				return;
 
 			String[] parts = line.split(": ", 2);
 			if(parts.length != 2)
@@ -84,7 +88,29 @@ public class HttpRequest
 				System.out.println("Got malformed HTTP header");
 				return;
 			}
-			headers.put(parts[0], parts[1]);
+			this.headers.put(parts[0], parts[1]);
+		}
+		if(!this.headers.containsKey("Content-Length"))
+			return;
+
+		int received_bytes = 0;
+		this.body = "";
+		while(received_bytes < new Integer(this.headers.get("Content-Length")))
+		{
+			try
+			{
+				line = reader.readLine();
+			}
+			catch(IOException e)
+			{
+				System.out.println("Error reading from HTTP socket");
+				return;
+			}
+			if(line == null)
+				return;
+
+			this.body += line + "\n";
+			received_bytes += line.length();
 		}
 	}
 }
