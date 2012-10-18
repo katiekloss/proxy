@@ -5,12 +5,7 @@ import java.lang.*;
 
 public class HttpRequest
 {
-	public enum Method
-	{
-		OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT
-	}
-
-	Method method;
+	String method;
 	String uri;
 	int httpMajorVersion;
 	int httpMinorVersion;
@@ -19,6 +14,8 @@ public class HttpRequest
 
 	public HttpRequest(BufferedReader reader)
 	{
+		this.body = "";
+
 		String line;
 		try
 		{
@@ -39,27 +36,7 @@ public class HttpRequest
 			return;
 		}
 
-		if(matcher.group(1).equals("GET"))
-			this.method = Method.GET;
-		else if(matcher.group(1).equals("POST"))
-			this.method = Method.POST;
-		else if(matcher.group(1).equals("HEAD"))
-			this.method = Method.HEAD;
-		else if(matcher.group(1).equals("OPTIONS"))
-			this.method = Method.OPTIONS;
-		else if(matcher.group(1).equals("PUT"))
-			this.method = Method.PUT;
-		else if(matcher.group(1).equals("DELETE"))
-			this.method = Method.DELETE;
-		else if(matcher.group(1).equals("TRACE"))
-			this.method = Method.TRACE;
-		else if(matcher.group(1).equals("CONNECT"))
-			this.method = Method.CONNECT;
-		else
-		{
-			// AAAAAAAAAAAAAAAA
-		}
-
+		this.method = matcher.group(1);
 		this.uri = matcher.group(2);
 		this.httpMajorVersion = Integer.parseInt(matcher.group(3));
 		this.httpMinorVersion = Integer.parseInt(matcher.group(4));
@@ -94,23 +71,39 @@ public class HttpRequest
 			return;
 
 		int received_bytes = 0;
-		this.body = "";
 		while(received_bytes < new Integer(this.headers.get("Content-Length")))
 		{
 			try
 			{
-				line = reader.readLine();
+				char data = (char)reader.read();
+				if(data == -1)
+					return;
+				this.body += data;
+				received_bytes++;
 			}
 			catch(IOException e)
 			{
 				System.out.println("Error reading from HTTP socket");
 				return;
 			}
-			if(line == null)
-				return;
-
-			this.body += line + "\n";
-			received_bytes += line.length();
 		}
+	}
+
+	public String serialize()
+	{
+		String out = "";
+		out += this.method + " " + this.uri + " HTTP/" + this.httpMajorVersion +
+			"." + this.httpMinorVersion + "\n";
+		for(String header : this.headers.keySet())
+		{
+			String value = this.headers.get(header);
+			out += header + ": " + value + "\n";
+		}
+		out += "\n";
+		if(this.body.length() > 0)
+		{
+			out += body;
+		}
+		return out;
 	}
 }
