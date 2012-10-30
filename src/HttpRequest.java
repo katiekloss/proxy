@@ -12,7 +12,7 @@ public class HttpRequest
 	HashMap<String,String> headers;
 	String body;
 
-	public HttpRequest(BufferedReader reader)
+	public HttpRequest(BufferedReader reader) throws HttpParseException
 	{
 		this.body = "";
 
@@ -24,16 +24,16 @@ public class HttpRequest
 		catch(IOException e)
 		{
 			// Throw this
-			System.out.println("Error reading HTTP request from socket");
-			return;
+			throw new HttpParseException("Error reading HTTP request from socket");
 		}
+		
+		if(line == null) throw new HttpParseException("Empty HTTP message");
 
 		Pattern requestPattern = Pattern.compile("(.+) (.+) HTTP/([0-9]+)\\.([0-9]+)");
 		Matcher matcher = requestPattern.matcher(line);
 		if(!matcher.matches())
 		{
-			// Throw
-			return;
+			throw new HttpParseException("Invalid request line: " + line);
 		}
 
 		this.method = matcher.group(1);
@@ -50,8 +50,7 @@ public class HttpRequest
 			}
 			catch(IOException e)
 			{
-				System.out.println("Error reading from HTTP socket");
-				return;
+				throw new HttpParseException("Error reading from HTTP socket");
 			}
 
 			if(line.equals(""))
@@ -62,8 +61,7 @@ public class HttpRequest
 			String[] parts = line.split(": ", 2);
 			if(parts.length != 2)
 			{
-				System.out.println("Got malformed HTTP header");
-				return;
+				throw new HttpParseException("Got malformed HTTP header:" + line);
 			}
 			this.headers.put(parts[0], parts[1]);
 		}
@@ -83,8 +81,7 @@ public class HttpRequest
 			}
 			catch(IOException e)
 			{
-				System.out.println("Error reading from HTTP socket");
-				return;
+				throw new HttpParseException("Error reading from HTTP socket");
 			}
 		}
 	}

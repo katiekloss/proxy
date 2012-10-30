@@ -25,8 +25,18 @@ public class ClientHandler implements Runnable
 			return;
 		}
 
-		HttpRequest request = new HttpRequest(inputReader);
-		System.out.println("Received request for \"" + request.uri + "\"");
+		HttpRequest request;
+		try
+		{
+			request = new HttpRequest(inputReader);
+		}
+		catch(HttpParseException e)
+		{
+			System.out.println("Error parsing HTTP message: " + e.getMessage());
+			return;
+		}
+
+		System.out.println("Received " + request.method + " request for \"" + request.uri + "\"");
 		try
 		{
 			this.client.close();
