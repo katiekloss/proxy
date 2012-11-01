@@ -14,6 +14,7 @@ public class ClientHandler implements Runnable
 	{
 		BufferedReader inputReader;
 		PrintStream outputStream;
+
 		try
 		{
 			inputReader = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
@@ -64,7 +65,7 @@ public class ClientHandler implements Runnable
 				Socket upstreamSocket;
 				try
 				{
-					upstreamSocket = new Socket(url.getHost(), url.getPort() < 0 ? 80 : url.getPort());
+					upstreamSocket = new Socket(DnsCache.get(url.getHost()), url.getPort() < 0 ? 80 : url.getPort());
 				}
 				catch(UnknownHostException e)
 				{
