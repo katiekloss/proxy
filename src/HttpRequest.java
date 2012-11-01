@@ -12,6 +12,15 @@ public class HttpRequest
 	HashMap<String,String> headers;
 	String body;
 
+	public HttpRequest(String method, String uri, String body)
+	{
+		this.method = method;
+		this.uri = uri;
+		this.body = body;
+		this.httpMajorVersion = 1;
+		this.httpMinorVersion = 1;
+	}
+
 	public HttpRequest(BufferedReader reader) throws HttpParseException
 	{
 		this.body = "";
@@ -23,7 +32,6 @@ public class HttpRequest
 		}
 		catch(IOException e)
 		{
-			// Throw this
 			throw new HttpParseException("Error reading HTTP request from socket");
 		}
 		
@@ -59,10 +67,8 @@ public class HttpRequest
 				return;
 
 			String[] parts = line.split(": ", 2);
-			if(parts.length != 2)
-			{
-				throw new HttpParseException("Got malformed HTTP header:" + line);
-			}
+			if(parts.length != 2) throw new HttpParseException("Got malformed HTTP header:" + line);
+
 			this.headers.put(parts[0], parts[1]);
 		}
 		if(!this.headers.containsKey("Content-Length"))
@@ -84,6 +90,21 @@ public class HttpRequest
 				throw new HttpParseException("Error reading from HTTP socket");
 			}
 		}
+	}
+
+	public String getHeader(String name)
+	{
+		return this.headers.get(name);
+	}
+
+	public void addHeader(String name, String value)
+	{
+		this.headers.put(name, value);
+	}
+
+	public void removeHeader(String name)
+	{
+		this.headers.remove(name);
 	}
 
 	public String serialize()
