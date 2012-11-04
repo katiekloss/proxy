@@ -46,7 +46,15 @@ public class ClientHandler implements Runnable
 			{
 				System.out.println("Error parsing HTTP message: " + e.getMessage() + " (" +
 					this.client.getInetAddress() + ":" + this.client.getPort() + ")");
-				response = new HttpResponse(400, "Bad Request");
+
+				// This prevents the client from infinitely retransmitting whatever packet this was
+				// In the case where it sends a blank packet, closing the connection seems
+				// to be the best signal to get the browser to go away.
+				try
+				{
+					this.client.close();
+				}
+				catch(IOException e) {}
 			}
 
 			if(request != null && request.method.equals("CONNECT"))
