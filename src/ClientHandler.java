@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable
 				{
 					this.client.close();
 				}
-				catch(IOException e) {}
+				catch(IOException e2) {}
 			}
 
 			if(request != null && request.method.equals("CONNECT"))
