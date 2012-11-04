@@ -104,6 +104,16 @@ public class HttpResponse
 		}
 	}
 
+	public HttpResponse(int status, String reason)
+	{
+		this.statusCode = status;
+		this.reason = reason;
+		this.httpMajorVersion = 1;
+		this.httpMinorVersion = 1;
+		this.headers = new HashMap<String,String>();
+		this.body = new ByteArrayOutputStream();
+	}
+
 	public ByteArrayOutputStream serialize()
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -29,14 +29,7 @@ public class DnsCache
 		if(getInstance()._cache.containsKey(hostname))
 		{
 			if(getInstance()._cache.get(hostname).two + getInstance().timeout > (System.currentTimeMillis() / 1000))
-			{
-				System.out.println("Cache hit for " + hostname);
 				return getInstance()._cache.get(hostname).one;
-			} else {
-				System.out.println("Cache stale for " + hostname);
-			}
-		} else {
-			System.out.println("Cache miss for " + hostname);
 		}
 
 		InetAddress address;
