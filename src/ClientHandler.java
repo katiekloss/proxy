@@ -124,7 +124,10 @@ public class ClientHandler implements Runnable
 						// If we got this far, might as well finish handling the request
 					}
 				}
+			}
 
+			if(response != null)
+			{
 				try
 				{
 					outputStream.write(response.serialize().toByteArray());
